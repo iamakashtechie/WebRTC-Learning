@@ -13,7 +13,7 @@
 
 const http = require('http');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
   // Enable CORS for browser client testing
