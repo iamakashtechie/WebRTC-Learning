@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real-Time Communication Playground | Chai aur Code Reference</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #38bdf8;
+      --accent: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --console-bg: #0b0f19;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 24px;
+      line-height: 1.5;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 28px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      color: var(--primary);
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-poll { background-color: rgba(245, 158, 11, 0.2); color: var(--accent); }
+    .badge-sse { background-color: rgba(56, 189, 248, 0.2); color: var(--primary); }
+    .badge-ws { background-color: rgba(16, 185, 129, 0.2); color: var(--success); }
+
+    .card-desc {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      min-height: 40px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: #0f172a;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 14px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+    button.btn-danger { background-color: var(--danger); color: #fff; }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      background: var(--console-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.875rem;
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .console-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .console {
+      flex: 1;
+      background-color: var(--console-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .log-item {
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time { color: var(--text-muted); }
+    .log-info { color: var(--primary); }
+    .log-success { color: var(--success); }
+    .log-warn { color: var(--accent); }
+    .log-error { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Real-Time Communication Playground</h1>
+    <p>Interactive testing dashboard for Long Polling, Server-Sent Events (SSE), and WebSockets</p>
+  </header>
+
+  <div class="container">
+    <!-- 1. LONG POLLING -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">1. Long Polling</h2>
+        <span class="badge badge-poll">HTTP Hanging Request</span>
+      </div>
+      <p class="card-desc">
+        Client requests <code>/poll</code> and the server keeps connection open until simulated data arrives (3s), then immediately re-polls.
+      </p>
+      <div class="controls">
+        <button id="pollStartBtn" onclick="startLongPolling()">Start Polling</button>
+        <button id="pollStopBtn" class="btn-danger" onclick="stopLongPolling()" disabled>Stop</button>
+      </div>
+      <div class="console-header">
+        <span>Activity Log</span>
+        <a href="javascript:void(0)" onclick="clearLog('pollLog')" style="color:var(--text-muted); font-size:0.75rem;">Clear</a>
+      </div>
+      <div id="pollLog" class="console"></div>
+    </div>
+
+    <!-- 2. SERVER-SENT EVENTS -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">2. Server-Sent Events</h2>
+        <span class="badge badge-sse">HTTP Stream (1-Way)</span>
+      </div>
+      <p class="card-desc">
+        Client opens a persistent stream with <code>EventSource('/events')</code>. The server pushes real-time events every 2 seconds.
+      </p>
+      <div class="controls">
+        <button id="sseConnectBtn" onclick="connectSSE()">Connect SSE</button>
+        <button id="sseDisconnectBtn" class="btn-danger" onclick="disconnectSSE()" disabled>Disconnect</button>
+      </div>
+      <div class="console-header">
+        <span>Activity Log</span>
+        <a href="javascript:void(0)" onclick="clearLog('sseLog')" style="color:var(--text-muted); font-size:0.75rem;">Clear</a>
+      </div>
+      <div id="sseLog" class="console"></div>
+    </div>
+
+    <!-- 3. WEBSOCKETS -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">3. WebSockets</h2>
+        <span class="badge badge-ws">Full-Duplex (2-Way)</span>
+      </div>
+      <p class="card-desc">
+        A bidirectional TCP connection over <code>ws://localhost:3000</code>. Client and server can push messages instantly.
+      </p>
+      <div class="controls">
+        <button id="wsConnectBtn" onclick="connectWS()">Connect</button>
+        <button id="wsDisconnectBtn" class="btn-danger" onclick="disconnectWS()" disabled>Disconnect</button>
+        <div class="input-group">
+          <input type="text" id="wsMessageInput" placeholder="Enter message to send..." disabled onkeydown="if(event.key==='Enter') sendWSMessage()" />
+          <button id="wsSendBtn" onclick="sendWSMessage()" disabled>Send</button>
+        </div>
+      </div>
+      <div class="console-header">
+        <span>Activity Log</span>
+        <a href="javascript:void(0)" onclick="clearLog('wsLog')" style="color:var(--text-muted); font-size:0.75rem;">Clear</a>
+      </div>
+      <div id="wsLog" class="console"></div>
+    </div>
+  </div>
+
+  <script>
+    const SERVER_URL = 'http://localhost:3000';
+    const WS_URL = 'ws://localhost:3000';
+
+    function log(elementId, text, type = 'info') {
+      const consoleEl = document.getElementById(elementId);
+      const time = new Date().toLocaleTimeString();
+      const item = document.createElement('div');
+      item.className = 'log-item';
+      item.innerHTML = `<span class="log-time">[${time}]</span> <span class="log-${type}">${text}</span>`;
+      consoleEl.appendChild(item);
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearLog(elementId) {
+      document.getElementById(elementId).innerHTML = '';
+    }
+
+    // --- 1. LONG POLLING ---
+    let isPolling = false;
+    let pollAbortController = null;
+
+    async function startLongPolling() {
+      isPolling = true;
+      document.getElementById('pollStartBtn').disabled = true;
+      document.getElementById('pollStopBtn').disabled = false;
+      log('pollLog', 'Starting Long Polling loop...', 'warn');
+      poll();
+    }
+
+    function stopLongPolling() {
+      isPolling = false;
+      if (pollAbortController) {
+        pollAbortController.abort();
+      }
+      document.getElementById('pollStartBtn').disabled = false;
+      document.getElementById('pollStopBtn').disabled = true;
+      log('pollLog', 'Stopped Long Polling.', 'warn');
+    }
+
+    async function poll() {
+      if (!isPolling) return;
+      pollAbortController = new AbortController();
+      const startTime = performance.now();
+      try {
+        log('pollLog', 'Sending request to /poll (waiting for server data)...', 'info');
+        const res = await fetch(`${SERVER_URL}/poll`, { signal: pollAbortController.signal });
+        const data = await res.json();
+        const duration = Math.round(performance.now() - startTime);
+        log('pollLog', `Response received after ${duration}ms: ${JSON.stringify(data.message)}`, 'success');
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          log('pollLog', `Polling Error (is server running?): ${err.message}`, 'error');
+          await new Promise((r) => setTimeout(r, 2000));
+        }
+      } finally {
+        if (isPolling) {
+          poll();
+        }
+      }
+    }
+
+    // --- 2. SERVER-SENT EVENTS ---
+    let eventSource = null;
+
+    function connectSSE() {
+      if (eventSource) return;
+      log('sseLog', 'Connecting to SSE at /events...', 'info');
+      try {
+        eventSource = new EventSource(`${SERVER_URL}/events`);
+        
+        eventSource.onopen = () => {
+          log('sseLog', 'SSE connection established!', 'success');
+          document.getElementById('sseConnectBtn').disabled = true;
+          document.getElementById('sseDisconnectBtn').disabled = false;
+        };
+
+        eventSource.onmessage = (event) => {
+          log('sseLog', `Event received: ${event.data}`, 'info');
+        };
+
+        eventSource.onerror = (err) => {
+          log('sseLog', 'SSE connection error or closed by server.', 'error');
+          disconnectSSE();
+        };
+      } catch (err) {
+        log('sseLog', `Error connecting SSE: ${err.message}`, 'error');
+      }
+    }
+
+    function disconnectSSE() {
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+        log('sseLog', 'Disconnected from SSE stream.', 'warn');
+      }
+      document.getElementById('sseConnectBtn').disabled = false;
+      document.getElementById('sseDisconnectBtn').disabled = true;
+    }
+
+    // --- 3. WEBSOCKETS ---
+    let ws = null;
+
+    function connectWS() {
+      if (ws) return;
+      log('wsLog', `Connecting to WebSocket at ${WS_URL}...`, 'info');
+      try {
+        ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+          log('wsLog', 'WebSocket connected successfully!', 'success');
+          document.getElementById('wsConnectBtn').disabled = true;
+          document.getElementById('wsDisconnectBtn').disabled = false;
+          document.getElementById('wsMessageInput').disabled = false;
+          document.getElementById('wsSendBtn').disabled = false;
+        };
+
+        ws.onmessage = (event) => {
+          log('wsLog', `Received: ${event.data}`, 'info');
+        };
+
+        ws.onclose = () => {
+          log('wsLog', 'WebSocket connection closed.', 'warn');
+          resetWSUI();
+        };
+
+        ws.onerror = (err) => {
+          log('wsLog', 'WebSocket error encountered.', 'error');
+          resetWSUI();
+        };
+      } catch (err) {
+        log('wsLog', `WebSocket connection failed: ${err.message}`, 'error');
+      }
+    }
+
+    function sendWSMessage() {
+      const input = document.getElementById('wsMessageInput');
+      const text = input.value.trim();
+      if (!text || !ws || ws.readyState !== WebSocket.OPEN) return;
+
+      log('wsLog', `Sent: ${text}`, 'success');
+      ws.send(text);
+      input.value = '';
+    }
+
+    function disconnectWS() {
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+      resetWSUI();
+    }
+
+    function resetWSUI() {
+      ws = null;
+      document.getElementById('wsConnectBtn').disabled = false;
+      document.getElementById('wsDisconnectBtn').disabled = true;
+      document.getElementById('wsMessageInput').disabled = true;
+      document.getElementById('wsSendBtn').disabled = true;
+    }
+  </script>
+</body>
+</html>

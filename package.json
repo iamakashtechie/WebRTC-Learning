@@ -1,13 +1,25 @@
 {
   "name": "real-time-communication-webrtc",
   "version": "1.0.0",
-  "description": "",
+  "description": "Comprehensive guide and code examples for Real-Time Communication: Long Polling, Server-Sent Events (SSE), WebSockets, and WebRTC concepts based on Chai aur Code tutorial.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "poll": "node longPolling.js",
+    "sse": "node serverSentEvents.js",
+    "ws": "node webSocket.js"
   },
-  "keywords": [],
-  "type": "commonjs",
+  "keywords": [
+    "real-time-communication",
+    "long-polling",
+    "server-sent-events",
+    "sse",
+    "websockets",
+    "webrtc",
+    "chai-aur-code",
+    "nodejs"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "ws": "^8.21.3"
   }
